@@ -1,0 +1,97 @@
+{
+    "eval_set_id": "lms_quiz_history_agent",
+    "name": "Quiz Historian Agent Tests",
+    "description": "Verifies the Quiz_Historian agent correctly uses quiz_history and document_stats tools.",
+    "eval_cases": [
+        {
+            "eval_id": "view_quiz_history",
+            "conversation": [
+                {
+                    "invocation_id": "inv-qhist-001",
+                    "user_content": {
+                        "parts": [
+                            {
+                                "text": "Show me my quiz history"
+                            }
+                        ],
+                        "role": "user"
+                    },
+                    "final_response": {
+                        "parts": [
+                            {
+                                "text": "Here is your quiz history with all past scores."
+                            }
+                        ],
+                        "role": "model"
+                    },
+                    "intermediate_data": {
+                        "tool_uses": [
+                            {
+                                "name": "transfer_to_agent",
+                                "args": {
+                                    "agent_name": "Quiz_Historian"
+                                }
+                            },
+                            {
+                                "name": "quiz_history",
+                                "args": {}
+                            }
+                        ],
+                        "intermediate_responses": []
+                    }
+                }
+            ],
+            "session_input": {
+                "app_name": "LMS_Project_V2",
+                "user_id": "test_user",
+                "state": {}
+            }
+        },
+        {
+            "eval_id": "view_document_stats",
+            "conversation": [
+                {
+                    "invocation_id": "inv-qhist-002",
+                    "user_content": {
+                        "parts": [
+                            {
+                                "text": "What are my performance stats for the Python document?"
+                            }
+                        ],
+                        "role": "user"
+                    },
+                    "final_response": {
+                        "parts": [
+                            {
+                                "text": "Here are your performance statistics for the Python document."
+                            }
+                        ],
+                        "role": "model"
+                    },
+                    "intermediate_data": {
+                        "tool_uses": [
+                            {
+                                "name": "transfer_to_agent",
+                                "args": {
+                                    "agent_name": "Quiz_Historian"
+                                }
+                            },
+                            {
+                                "name": "document_stats",
+                                "args": {
+                                    "document_name": "Python"
+                                }
+                            }
+                        ],
+                        "intermediate_responses": []
+                    }
+                }
+            ],
+            "session_input": {
+                "app_name": "LMS_Project_V2",
+                "user_id": "test_user",
+                "state": {}
+            }
+        }
+    ]
+}

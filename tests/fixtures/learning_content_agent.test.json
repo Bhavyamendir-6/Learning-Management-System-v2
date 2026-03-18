@@ -1,0 +1,101 @@
+{
+    "eval_set_id": "lms_learning_content_agent",
+    "name": "Learning Content Agent Tests",
+    "description": "Verifies the LearningContent_Agent correctly uses generate_summary and generate_flashcards tools.",
+    "eval_cases": [
+        {
+            "eval_id": "generate_document_summary",
+            "conversation": [
+                {
+                    "invocation_id": "inv-learn-summary-001",
+                    "user_content": {
+                        "parts": [
+                            {
+                                "text": "Give me a brief summary of Python_Basics.pdf"
+                            }
+                        ],
+                        "role": "user"
+                    },
+                    "final_response": {
+                        "parts": [
+                            {
+                                "text": "Here is a brief summary of the Python_Basics.pdf document."
+                            }
+                        ],
+                        "role": "model"
+                    },
+                    "intermediate_data": {
+                        "tool_uses": [
+                            {
+                                "name": "transfer_to_agent",
+                                "args": {
+                                    "agent_name": "LearningContent_Agent"
+                                }
+                            },
+                            {
+                                "name": "generate_summary",
+                                "args": {
+                                    "document_name": "Python_Basics.pdf",
+                                    "summary_type": "brief"
+                                }
+                            }
+                        ],
+                        "intermediate_responses": []
+                    }
+                }
+            ],
+            "session_input": {
+                "app_name": "LMS_Project_V2",
+                "user_id": "test_user",
+                "state": {}
+            }
+        },
+        {
+            "eval_id": "generate_flashcards",
+            "conversation": [
+                {
+                    "invocation_id": "inv-learn-flash-001",
+                    "user_content": {
+                        "parts": [
+                            {
+                                "text": "Create 10 flashcards from Python_Basics.pdf"
+                            }
+                        ],
+                        "role": "user"
+                    },
+                    "final_response": {
+                        "parts": [
+                            {
+                                "text": "Here are 10 flashcards generated from your Python_Basics.pdf document."
+                            }
+                        ],
+                        "role": "model"
+                    },
+                    "intermediate_data": {
+                        "tool_uses": [
+                            {
+                                "name": "transfer_to_agent",
+                                "args": {
+                                    "agent_name": "LearningContent_Agent"
+                                }
+                            },
+                            {
+                                "name": "generate_flashcards",
+                                "args": {
+                                    "document_name": "Python_Basics.pdf",
+                                    "num_cards": 10
+                                }
+                            }
+                        ],
+                        "intermediate_responses": []
+                    }
+                }
+            ],
+            "session_input": {
+                "app_name": "LMS_Project_V2",
+                "user_id": "test_user",
+                "state": {}
+            }
+        }
+    ]
+}

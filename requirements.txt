@@ -1,0 +1,21 @@
+# ── Core AI / Agent ──────────────────────────────────────────────────────────
+google-adk                # Google Agent Development Kit
+google-generativeai       # Gemini SDK (genai.Client, types, File Search)
+python-dotenv             # .env loading
+
+# ── Data validation ───────────────────────────────────────────────────────────
+pydantic>=2.0             # BaseModel, Field, field_validator (v2 API)
+
+# ── Database ──────────────────────────────────────────────────────────────────
+sqlalchemy>=2.0           # Async ORM (application tables + ADK DatabaseSessionService)
+asyncpg                   # PostgreSQL async driver (postgresql+asyncpg:// URL)
+
+# ── Backend Framework (FastAPI) ───────────────────────────────────────────────
+fastapi
+uvicorn
+sse-starlette             # For Server-Sent Events (SSE) streaming
+python-multipart          # For handling file uploads (multipart form data)
+
+# ── Authentication ────────────────────────────────────────────────────────────
+PyJWT>=2.8.0              # JWT signing/verification (HS256)
+bcrypt>=4.0.0             # Password hashing (work factor 12)

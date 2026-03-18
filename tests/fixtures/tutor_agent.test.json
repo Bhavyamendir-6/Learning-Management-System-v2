@@ -1,0 +1,98 @@
+{
+    "eval_set_id": "lms_tutor_agent",
+    "name": "AI Tutor Agent Tests",
+    "description": "Verifies the AI_Tutor agent correctly uses start_tutoring_session and get_learning_notes tools.",
+    "eval_cases": [
+        {
+            "eval_id": "start_tutoring",
+            "conversation": [
+                {
+                    "invocation_id": "inv-tutor-start-001",
+                    "user_content": {
+                        "parts": [
+                            {
+                                "text": "Tutor me on Python functions from Python_Basics.pdf"
+                            }
+                        ],
+                        "role": "user"
+                    },
+                    "final_response": {
+                        "parts": [
+                            {
+                                "text": "Let's begin your tutoring session on Python functions. I'll guide you step by step using the Socratic method."
+                            }
+                        ],
+                        "role": "model"
+                    },
+                    "intermediate_data": {
+                        "tool_uses": [
+                            {
+                                "name": "transfer_to_agent",
+                                "args": {
+                                    "agent_name": "AI_Tutor"
+                                }
+                            },
+                            {
+                                "name": "start_tutoring_session",
+                                "args": {
+                                    "document_name": "Python_Basics.pdf",
+                                    "topic": "Python functions"
+                                }
+                            }
+                        ],
+                        "intermediate_responses": []
+                    }
+                }
+            ],
+            "session_input": {
+                "app_name": "LMS_Project_V2",
+                "user_id": "test_user",
+                "state": {}
+            }
+        },
+        {
+            "eval_id": "retrieve_learning_notes",
+            "conversation": [
+                {
+                    "invocation_id": "inv-tutor-notes-001",
+                    "user_content": {
+                        "parts": [
+                            {
+                                "text": "Show me all my saved learning notes"
+                            }
+                        ],
+                        "role": "user"
+                    },
+                    "final_response": {
+                        "parts": [
+                            {
+                                "text": "Here are your saved learning notes."
+                            }
+                        ],
+                        "role": "model"
+                    },
+                    "intermediate_data": {
+                        "tool_uses": [
+                            {
+                                "name": "transfer_to_agent",
+                                "args": {
+                                    "agent_name": "AI_Tutor"
+                                }
+                            },
+                            {
+                                "name": "get_learning_notes",
+                                "args": {}
+                            }
+                        ],
+                        "intermediate_responses": []
+                    }
+                }
+            ],
+            "session_input": {
+                "app_name": "LMS_Project_V2",
+                "user_id": "test_user",
+                "state": {}
+            }
+        }
+    ]
+}

@@ -1,0 +1,247 @@
+{
+    "eval_set_id": "lms_root_agent_routing",
+    "name": "Root Agent Routing Tests",
+    "description": "Verifies the LMS_Executive root agent correctly routes user intents to the appropriate sub-agent.",
+    "eval_cases": [
+        {
+            "eval_id": "route_to_pdf_handler",
+            "conversation": [
+                {
+                    "invocation_id": "inv-route-pdf-001",
+                    "user_content": {
+                        "parts": [
+                            {
+                                "text": "Show me all my uploaded PDF files"
+                            }
+                        ],
+                        "role": "user"
+                    },
+                    "final_response": {
+                        "parts": [
+                            {
+                                "text": "Let me retrieve your uploaded files for you."
+                            }
+                        ],
+                        "role": "model"
+                    },
+                    "intermediate_data": {
+                        "tool_uses": [
+                            {
+                                "name": "transfer_to_agent",
+                                "args": {
+                                    "agent_name": "PDF_Handler"
+                                }
+                            }
+                        ],
+                        "intermediate_responses": []
+                    }
+                }
+            ],
+            "session_input": {
+                "app_name": "LMS_Project_V2",
+                "user_id": "test_user",
+                "state": {}
+            }
+        },
+        {
+            "eval_id": "route_to_quiz_master",
+            "conversation": [
+                {
+                    "invocation_id": "inv-route-quiz-001",
+                    "user_content": {
+                        "parts": [
+                            {
+                                "text": "Quiz me with 5 questions on my Python document"
+                            }
+                        ],
+                        "role": "user"
+                    },
+                    "final_response": {
+                        "parts": [
+                            {
+                                "text": "I'll set up a quiz for you right away."
+                            }
+                        ],
+                        "role": "model"
+                    },
+                    "intermediate_data": {
+                        "tool_uses": [
+                            {
+                                "name": "transfer_to_agent",
+                                "args": {
+                                    "agent_name": "Quiz_Master"
+                                }
+                            }
+                        ],
+                        "intermediate_responses": []
+                    }
+                }
+            ],
+            "session_input": {
+                "app_name": "LMS_Project_V2",
+                "user_id": "test_user",
+                "state": {}
+            }
+        },
+        {
+            "eval_id": "route_to_quiz_historian",
+            "conversation": [
+                {
+                    "invocation_id": "inv-route-history-001",
+                    "user_content": {
+                        "parts": [
+                            {
+                                "text": "Show me my quiz history and all my past scores"
+                            }
+                        ],
+                        "role": "user"
+                    },
+                    "final_response": {
+                        "parts": [
+                            {
+                                "text": "Let me pull up your quiz history."
+                            }
+                        ],
+                        "role": "model"
+                    },
+                    "intermediate_data": {
+                        "tool_uses": [
+                            {
+                                "name": "transfer_to_agent",
+                                "args": {
+                                    "agent_name": "Quiz_Historian"
+                                }
+                            }
+                        ],
+                        "intermediate_responses": []
+                    }
+                }
+            ],
+            "session_input": {
+                "app_name": "LMS_Project_V2",
+                "user_id": "test_user",
+                "state": {}
+            }
+        },
+        {
+            "eval_id": "route_to_learning_content",
+            "conversation": [
+                {
+                    "invocation_id": "inv-route-learn-001",
+                    "user_content": {
+                        "parts": [
+                            {
+                                "text": "Give me a brief summary of Python_Basics.pdf"
+                            }
+                        ],
+                        "role": "user"
+                    },
+                    "final_response": {
+                        "parts": [
+                            {
+                                "text": "I'll generate a summary of that document for you."
+                            }
+                        ],
+                        "role": "model"
+                    },
+                    "intermediate_data": {
+                        "tool_uses": [
+                            {
+                                "name": "transfer_to_agent",
+                                "args": {
+                                    "agent_name": "LearningContent_Agent"
+                                }
+                            }
+                        ],
+                        "intermediate_responses": []
+                    }
+                }
+            ],
+            "session_input": {
+                "app_name": "LMS_Project_V2",
+                "user_id": "test_user",
+                "state": {}
+            }
+        },
+        {
+            "eval_id": "route_to_tutor",
+            "conversation": [
+                {
+                    "invocation_id": "inv-route-tutor-001",
+                    "user_content": {
+                        "parts": [
+                            {
+                                "text": "Tutor me on Python functions from my uploaded document"
+                            }
+                        ],
+                        "role": "user"
+                    },
+                    "final_response": {
+                        "parts": [
+                            {
+                                "text": "I'll start a tutoring session for you on Python functions."
+                            }
+                        ],
+                        "role": "model"
+                    },
+                    "intermediate_data": {
+                        "tool_uses": [
+                            {
+                                "name": "transfer_to_agent",
+                                "args": {
+                                    "agent_name": "AI_Tutor"
+                                }
+                            }
+                        ],
+                        "intermediate_responses": []
+                    }
+                }
+            ],
+            "session_input": {
+                "app_name": "LMS_Project_V2",
+                "user_id": "test_user",
+                "state": {}
+            }
+        },
+        {
+            "eval_id": "route_to_community",
+            "conversation": [
+                {
+                    "invocation_id": "inv-route-community-001",
+                    "user_content": {
+                        "parts": [
+                            {
+                                "text": "Publish my recently generated quiz to the community"
+                            }
+                        ],
+                        "role": "user"
+                    },
+                    "final_response": {
+                        "parts": [
+                            {
+                                "text": "I'll publish your quiz to the community hub."
+                            }
+                        ],
+                        "role": "model"
+                    },
+                    "intermediate_data": {
+                        "tool_uses": [
+                            {
+                                "name": "transfer_to_agent",
+                                "args": {
+                                    "agent_name": "Community_Agent"
+                                }
+                            }
+                        ],
+                        "intermediate_responses": []
+                    }
+                }
+            ],
+            "session_input": {
+                "app_name": "LMS_Project_V2",
+                "user_id": "test_user",
+                "state": {}
+            }
+        }
+    ]
+}
