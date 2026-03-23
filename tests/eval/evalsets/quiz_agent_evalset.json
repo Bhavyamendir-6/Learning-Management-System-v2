@@ -1,0 +1,107 @@
+{
+  "eval_set_id": "quiz_agent_tests",
+  "name": "Quiz_Master Tool Trajectory Tests",
+  "description": "Validates Quiz_Master calls the right tools with correct arguments for quiz workflows",
+  "eval_cases": [
+    {
+      "eval_id": "generate_quiz_basic",
+      "conversation": [
+        {
+          "invocation_id": "inv_1",
+          "user_content": {
+            "parts": [{ "text": "Create a quiz on my Artificial Intelligence document" }]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{ "text": "Here is your quiz on Artificial Intelligence." }]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              { "name": "transfer_to_agent", "args": { "agent_name": "Quiz_Master" } },
+              { "name": "generate_quiz", "args": { "document_name": "Artificial Intelligence document" } }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "LMS_Project_V2",
+        "user_id": "eval_user",
+        "state": { "current_user_id": "eval_user" }
+      }
+    },
+    {
+      "eval_id": "retry_quiz",
+      "conversation": [
+        {
+          "invocation_id": "inv_1",
+          "user_content": {
+            "parts": [{ "text": "I want to retry my last quiz" }]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{ "text": "Here is your retry quiz." }]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              { "name": "transfer_to_agent", "args": { "agent_name": "Quiz_Master" } },
+              { "name": "retry_quiz", "args": {} }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "LMS_Project_V2",
+        "user_id": "eval_user",
+        "state": { "current_user_id": "eval_user" }
+      }
+    },
+    {
+      "eval_id": "record_and_complete_quiz",
+      "conversation": [
+        {
+          "invocation_id": "inv_1",
+          "user_content": {
+            "parts": [{ "text": "Generate a quiz on my Python Programming document" }]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              { "name": "transfer_to_agent", "args": { "agent_name": "Quiz_Master" } },
+              { "name": "generate_quiz", "args": { "document_name": "Python Programming document" } }
+            ]
+          }
+        },
+        {
+          "invocation_id": "inv_2",
+          "user_content": {
+            "parts": [{ "text": "My answer to question 1 is A" }]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              { "name": "record_answer", "args": { "question_number": 1, "user_answer": "A" } }
+            ]
+          }
+        },
+        {
+          "invocation_id": "inv_3",
+          "user_content": {
+            "parts": [{ "text": "I'm done with the quiz, please complete it" }]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{ "text": "Your quiz has been completed. Here are your results." }]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              { "name": "complete_quiz", "args": {} }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "LMS_Project_V2",
+        "user_id": "eval_user",
+        "state": { "current_user_id": "eval_user" }
+      }
+    }
+  ]
+}

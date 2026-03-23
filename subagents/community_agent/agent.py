@@ -6,7 +6,7 @@ from .prompt import COMMUNITY_AGENT_PROMPT
 community_agent = Agent(
     name="Community_Agent",
     model=GEMINI_MODEL_NAME,
-    description="Handles interactions with the LMS community features. Transfer to this agent when the user wants to publish flashcards to the community.",
+    description="Handles interactions with the LMS community features. Transfer to this agent when the user wants to publish quizzes or flashcards to the community hub.",
     instruction=COMMUNITY_AGENT_PROMPT,
     tools=[publish_to_community],
 )

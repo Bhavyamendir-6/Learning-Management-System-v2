@@ -1,0 +1,31 @@
+{
+  "eval_set_id": "quiz_flow_sim",
+  "name": "Quiz Flow User Simulation",
+  "description": "Dynamic multi-turn quiz session — generates quiz, answers questions, completes and retries",
+  "eval_cases": [
+    {
+      "eval_id": "full_quiz_flow",
+      "conversation_scenario": {
+        "starting_prompt": "I want to take a quiz on my Polar_Bears document",
+        "conversation_plan": "When the agent generates a quiz with multiple-choice questions, answer each question one by one. Give a mix of correct and incorrect answers (roughly 3 correct and 2 incorrect). After answering all questions, ask to see your final score. If the agent offers a retry option, accept it and take the retry quiz as well."
+      },
+      "session_input": {
+        "app_name": "LMS_Project_V2",
+        "user_id": "user",
+        "state": { "current_user_id": "user" }
+      }
+    },
+    {
+      "eval_id": "quiz_with_specific_topic",
+      "conversation_scenario": {
+        "starting_prompt": "Create a quiz specifically about polar bear habitats and adaptations from my Polar_Bears document",
+        "conversation_plan": "Answer all quiz questions deliberately incorrectly to test the agent's handling of low scores. After completing the quiz, ask for your score and then ask to retry to improve your score."
+      },
+      "session_input": {
+        "app_name": "LMS_Project_V2",
+        "user_id": "user",
+        "state": { "current_user_id": "user" }
+      }
+    }
+  ]
+}

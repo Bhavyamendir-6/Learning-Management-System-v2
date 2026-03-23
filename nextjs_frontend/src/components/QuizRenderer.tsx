@@ -9,13 +9,26 @@ interface Question {
     options: string[];
     correct_answer: string;
     hint?: string;
+    explanation?: string;
+}
+
+// Raw question shape from the backend (options as object)
+interface RawQuestion {
+    question_number: number;
+    question?: string;
+    question_text?: string;
+    options: Record<string, string> | string[];
+    correct_answer: string;
+    hint?: string;
+    explanation?: string;
 }
 
 interface QuizData {
     quiz_session_id?: string;
     document_name?: string;
+    document?: string;
     status?: string;
-    questions: Question[];
+    questions: RawQuestion[];
 }
 
 interface QuizRendererProps {
@@ -24,7 +37,32 @@ interface QuizRendererProps {
     onPublish?: () => void;
 }
 
+/**
+ * Normalize a raw question from the backend into the format the renderer expects.
+ * Handles both object options ({"A": "text"}) and array options (["A) text"]).
+ */
+function normalizeQuestion(raw: RawQuestion): Question {
+    let options: string[];
+    if (Array.isArray(raw.options)) {
+        options = raw.options;
+    } else {
+        // Convert {"A": "text", "B": "text"} → ["A) text", "B) text"]
+        options = Object.entries(raw.options).map(([letter, text]) => `${letter}) ${text}`);
+    }
+    return {
+        question_number: raw.question_number,
+        question_text: raw.question_text || raw.question || "",
+        options,
+        correct_answer: raw.correct_answer,
+        hint: raw.hint,
+        explanation: raw.explanation,
+    };
+}
+
 export default function QuizRenderer({ data, onComplete, onPublish }: QuizRendererProps) {
+    // Normalize all questions on mount
+    const questions: Question[] = data.questions.map(normalizeQuestion);
+    const documentName = data.document_name || data.document;
     const [answers, setAnswers] = useState<Record<number, string>>({});
     const [submitted, setSubmitted] = useState(false);
     const [submitting, setSubmitting] = useState(false);
@@ -40,7 +78,7 @@ export default function QuizRenderer({ data, onComplete, onPublish }: QuizRender
 
     const handleSubmit = async () => {
         setSubmitting(true);
-        const answersPayload = data.questions.map((q) => {
+        const answersPayload = questions.map((q) => {
             const userAnsStr = answers[q.question_number] || "";
             // The backend expects "A", "B", "C", "D"
             // The options are often "A) text"
@@ -75,7 +113,7 @@ export default function QuizRenderer({ data, onComplete, onPublish }: QuizRender
         }
     };
 
-    const allAnswered = Object.keys(answers).length === data.questions.length;
+    const allAnswered = Object.keys(answers).length === questions.length;
 
     return (
         <div className="bg-white dark:bg-[#162236] rounded-xl border border-[#1e3a5f]/10 dark:border-[#c9a84c]/10 shadow-sm overflow-hidden mt-4 mb-2 animate-fade-in">
@@ -84,12 +122,12 @@ export default function QuizRenderer({ data, onComplete, onPublish }: QuizRender
                     <svg className="w-5 h-5 text-[#1e3a5f] dark:text-[#c9a84c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
-                    Interactive Quiz {data.document_name && `- ${data.document_name}`}
+                    Interactive Quiz {documentName && `- ${documentName}`}
                 </h3>
             </div>
 
             <div className="p-5 space-y-6">
-                {data.questions.map((q, idx) => {
+                {questions.map((q, idx) => {
                     const userAnsStr = answers[q.question_number] || "";
                     const userChoice = userAnsStr.charAt(0).toUpperCase();
                     const isCorrect = submitted && userChoice === q.correct_answer;
@@ -141,7 +179,8 @@ export default function QuizRenderer({ data, onComplete, onPublish }: QuizRender
                             {submitted && (
                                 <div className={`mt-2 p-3 rounded-md text-sm ${isCorrect ? "bg-green-100/50 text-green-800 dark:text-green-200" : "bg-red-100/50 text-red-800 dark:text-red-200"}`}>
                                     <span className="font-bold">{isCorrect ? "Correct!" : "Incorrect."}</span> The correct answer is {q.correct_answer}.
-                                    {q.hint && <div className="mt-1 text-[#1e3a5f]/60 dark:text-[#c8c3b8]/60 italic">Hint: {q.hint}</div>}
+                                    {q.explanation && <div className="mt-1 text-[#1e3a5f]/80 dark:text-[#c8c3b8]/80">{q.explanation}</div>}
+                                    {!q.explanation && q.hint && <div className="mt-1 text-[#1e3a5f]/60 dark:text-[#c8c3b8]/60 italic">Hint: {q.hint}</div>}
                                 </div>
                             )}
                         </div>

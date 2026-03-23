@@ -17,6 +17,7 @@ from dotenv import load_dotenv
 from google.adk.runners import Runner
 from google.adk.sessions import DatabaseSessionService
 from google.genai import types as genai_types
+from utils.adk_logging_plugin import LMSLoggingPlugin
 
 
 # Path setup to resolve LMS_Agent_UI packages
@@ -60,6 +61,8 @@ try:
     _app = App(
         name=APP_NAME,
         root_agent=root_agent,
+        # ── Logging: global plugin covering all agents, tools, and LLM calls ──────
+        plugins=[LMSLoggingPlugin()],
         # ── Context Caching: caches system prompts so they aren't re-sent each request ──
         context_cache_config=ContextCacheConfig(
             min_tokens=2048,

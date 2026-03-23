@@ -1,0 +1,31 @@
+{
+  "eval_set_id": "tutor_flow_sim",
+  "name": "Tutoring Flow User Simulation",
+  "description": "Dynamic multi-turn tutoring session — Socratic method, follow-ups, examples, and note-saving",
+  "eval_cases": [
+    {
+      "eval_id": "tutoring_session_basic",
+      "conversation_scenario": {
+        "starting_prompt": "I'd like a tutoring session on neural networks from my Deep Learning document",
+        "conversation_plan": "Engage with the tutor's Socratic questions by giving partial or incomplete answers to test the tutoring methodology. Ask for a concrete example when the tutor introduces a new concept. After 3-4 exchanges, ask the tutor to check your understanding of backpropagation. Finally, ask to save learning notes summarizing the key insights from the session."
+      },
+      "session_input": {
+        "app_name": "LMS_Project_V2",
+        "user_id": "sim_user",
+        "state": { "current_user_id": "sim_user" }
+      }
+    },
+    {
+      "eval_id": "tutoring_with_difficulty",
+      "conversation_scenario": {
+        "starting_prompt": "Start a beginner-level tutoring session on sorting algorithms from my Data Structures textbook",
+        "conversation_plan": "Pretend to be a beginner who is confused about basic concepts. Ask clarifying questions when the tutor explains something. Request simpler examples. After the tutor explains the concept, ask for a comprehension check to verify your understanding. Save a learning note at the end summarizing what you learned."
+      },
+      "session_input": {
+        "app_name": "LMS_Project_V2",
+        "user_id": "sim_user",
+        "state": { "current_user_id": "sim_user" }
+      }
+    }
+  ]
+}

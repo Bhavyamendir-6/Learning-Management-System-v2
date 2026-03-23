@@ -1,0 +1,183 @@
+{
+  "eval_set_id": "routing_tests",
+  "name": "Root Agent Routing Tests",
+  "description": "Validates that LMS_Executive routes user intents to the correct sub-agent",
+  "eval_cases": [
+    {
+      "eval_id": "route_to_quiz",
+      "conversation": [
+        {
+          "invocation_id": "inv_1",
+          "user_content": {
+            "parts": [{ "text": "Generate a quiz on my Machine Learning notes" }]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              { "name": "transfer_to_agent", "args": { "agent_name": "Quiz_Master" } },
+              { "name": "generate_quiz", "args": { "document_name": "Machine Learning notes" } }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "LMS_Project_V2",
+        "user_id": "eval_user",
+        "state": { "current_user_id": "eval_user" }
+      }
+    },
+    {
+      "eval_id": "route_to_learning_summary",
+      "conversation": [
+        {
+          "invocation_id": "inv_1",
+          "user_content": {
+            "parts": [{ "text": "Give me a brief summary of my Data Structures textbook" }]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              { "name": "transfer_to_agent", "args": { "agent_name": "LearningContent_Agent" } },
+              { "name": "generate_summary", "args": { "document_name": "Data Structures textbook", "summary_type": "brief" } }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "LMS_Project_V2",
+        "user_id": "eval_user",
+        "state": { "current_user_id": "eval_user" }
+      }
+    },
+    {
+      "eval_id": "route_to_learning_question",
+      "conversation": [
+        {
+          "invocation_id": "inv_1",
+          "user_content": {
+            "parts": [{ "text": "What is backpropagation according to my neural networks document?" }]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              { "name": "transfer_to_agent", "args": { "agent_name": "LearningContent_Agent" } },
+              { "name": "ask_question", "args": { "question": "What is backpropagation", "document_name": "neural networks document" } }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "LMS_Project_V2",
+        "user_id": "eval_user",
+        "state": { "current_user_id": "eval_user" }
+      }
+    },
+    {
+      "eval_id": "route_to_tutor",
+      "conversation": [
+        {
+          "invocation_id": "inv_1",
+          "user_content": {
+            "parts": [{ "text": "Start a tutoring session on neural networks from my Deep Learning document" }]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              { "name": "transfer_to_agent", "args": { "agent_name": "AI_Tutor" } },
+              { "name": "start_tutoring_session", "args": { "topic": "neural networks", "document_name": "Deep Learning document" } }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "LMS_Project_V2",
+        "user_id": "eval_user",
+        "state": { "current_user_id": "eval_user" }
+      }
+    },
+    {
+      "eval_id": "route_to_history",
+      "conversation": [
+        {
+          "invocation_id": "inv_1",
+          "user_content": {
+            "parts": [{ "text": "Show me my quiz history" }]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              { "name": "transfer_to_agent", "args": { "agent_name": "Quiz_Historian" } },
+              { "name": "quiz_history", "args": {} }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "LMS_Project_V2",
+        "user_id": "eval_user",
+        "state": { "current_user_id": "eval_user" }
+      }
+    },
+    {
+      "eval_id": "route_to_community",
+      "conversation": [
+        {
+          "invocation_id": "inv_1",
+          "user_content": {
+            "parts": [{ "text": "Publish my latest flashcards to the community hub" }]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              { "name": "transfer_to_agent", "args": { "agent_name": "Community_Agent" } },
+              { "name": "publish_to_community", "args": { "title": "My flashcards" } }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "LMS_Project_V2",
+        "user_id": "eval_user",
+        "state": { "current_user_id": "eval_user" }
+      }
+    },
+    {
+      "eval_id": "route_to_pdf_list",
+      "conversation": [
+        {
+          "invocation_id": "inv_1",
+          "user_content": {
+            "parts": [{ "text": "List all my uploaded documents" }]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              { "name": "transfer_to_agent", "args": { "agent_name": "PDF_Handler" } },
+              { "name": "list_files", "args": {} }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "LMS_Project_V2",
+        "user_id": "eval_user",
+        "state": { "current_user_id": "eval_user" }
+      }
+    },
+    {
+      "eval_id": "route_to_flashcards",
+      "conversation": [
+        {
+          "invocation_id": "inv_1",
+          "user_content": {
+            "parts": [{ "text": "Create 10 flashcards from my Biology notes" }]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              { "name": "transfer_to_agent", "args": { "agent_name": "LearningContent_Agent" } },
+              { "name": "generate_flashcards", "args": { "document_name": "Biology notes", "num_cards": 10 } }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "LMS_Project_V2",
+        "user_id": "eval_user",
+        "state": { "current_user_id": "eval_user" }
+      }
+    }
+  ]
+}

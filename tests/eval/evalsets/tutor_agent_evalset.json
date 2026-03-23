@@ -1,0 +1,85 @@
+{
+  "eval_set_id": "tutor_agent_tests",
+  "name": "AI_Tutor Tool Trajectory Tests",
+  "description": "Validates AI_Tutor calls the right tools for tutoring sessions, notes, and follow-ups",
+  "eval_cases": [
+    {
+      "eval_id": "start_tutoring_session",
+      "conversation": [
+        {
+          "invocation_id": "inv_1",
+          "user_content": {
+            "parts": [{ "text": "Start a tutoring session on calculus from my Mathematics textbook" }]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{ "text": "Welcome to your tutoring session on calculus. Let's begin with a question." }]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              { "name": "transfer_to_agent", "args": { "agent_name": "AI_Tutor" } },
+              { "name": "start_tutoring_session", "args": { "topic": "calculus", "document_name": "Mathematics textbook" } }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "LMS_Project_V2",
+        "user_id": "eval_user",
+        "state": { "current_user_id": "eval_user" }
+      }
+    },
+    {
+      "eval_id": "save_learning_notes",
+      "conversation": [
+        {
+          "invocation_id": "inv_1",
+          "user_content": {
+            "parts": [{ "text": "Save a learning note: integration by parts is used when the integrand is a product of two functions" }]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{ "text": "Your learning note has been saved successfully." }]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              { "name": "transfer_to_agent", "args": { "agent_name": "AI_Tutor" } },
+              { "name": "save_learning_notes", "args": { "topic": "integration by parts", "insight": "integration by parts is used when the integrand is a product of two functions" } }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "LMS_Project_V2",
+        "user_id": "eval_user",
+        "state": { "current_user_id": "eval_user" }
+      }
+    },
+    {
+      "eval_id": "get_learning_notes",
+      "conversation": [
+        {
+          "invocation_id": "inv_1",
+          "user_content": {
+            "parts": [{ "text": "Show me all my learning notes" }]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{ "text": "Here are your learning notes." }]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              { "name": "transfer_to_agent", "args": { "agent_name": "AI_Tutor" } },
+              { "name": "get_learning_notes", "args": {} }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "LMS_Project_V2",
+        "user_id": "eval_user",
+        "state": { "current_user_id": "eval_user" }
+      }
+    }
+  ]
+}

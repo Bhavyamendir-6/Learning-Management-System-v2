@@ -1,24 +1,24 @@
 """Ask Question Tool for Learning Content Agent — single-call FileSearch pattern."""
 
 from ....config import GEMINI_MODEL_NAME
-import traceback
+import logging
+from typing import Annotated
 from google.genai import types
-from dotenv import load_dotenv
+from google.adk.tools import ToolContext
+
+logger = logging.getLogger(__name__)
 
 from Tools.file_search_store_manager import (
     get_client,
     get_user_store,
-    get_full_store_name,
 )
-
-load_dotenv()
 
 
 async def ask_question(
-    question: str,
-    document_name: str,
-    tool_context=None,
-) -> str:
+    question: Annotated[str, "The user's question about the document"],
+    document_name: Annotated[str, "The display name of the PDF document to search"],
+    tool_context: ToolContext,
+) -> dict:
     """
     Answer a question about a specific uploaded PDF document using File Search.
 
@@ -27,20 +27,19 @@ async def ask_question(
         document_name: The display name of the PDF document to search
 
     Returns:
-        str: The answer to the question, or an error message
+        dict: The answer to the question, or an error message
     """
     try:
         client = get_client()
 
         # ── Resolve store ──────────────────────────────────────────────────────
-        store_name = get_user_store(tool_context=tool_context)
-        full_store_name = get_full_store_name(store_name)
+        full_store_name = get_user_store(tool_context=tool_context)
 
         if not full_store_name:
-            return (
-                f"Could not find your document store ('{store_name}'). "
-                "Please upload a PDF first, then try again."
-            )
+            return {
+                "status": "error",
+                "message": "Could not find your document store. Please upload a PDF first, then try again.",
+            }
 
         # ── Call Gemini with FileSearch ────────────────────────────────────────
         prompt = (
@@ -53,7 +52,7 @@ async def ask_question(
             "- Cite relevant sections or details from the document where possible."
         )
 
-        response = client.models.generate_content(
+        response = await client.aio.models.generate_content(
             model=GEMINI_MODEL_NAME,
             contents=prompt,
             config=types.GenerateContentConfig(
@@ -67,8 +66,9 @@ async def ask_question(
             ),
         )
 
-        return response.text or "Failed to generate an answer. Please try again."
+        answer = response.text or "Failed to generate an answer. Please try again."
+        return {"status": "success", "answer": answer}
 
     except Exception as e:
-        print(f"[ask_question] Error:\n{traceback.format_exc()}")
-        return f"Error answering question: {str(e)}"
+        logger.error("[ask_question] error: %s", e, exc_info=True)
+        return {"status": "error", "message": f"Error answering question: {str(e)}"}

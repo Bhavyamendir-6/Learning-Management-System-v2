@@ -1,11 +1,10 @@
+import os
 import sys
+import time
 from pathlib import Path
 from typing import Optional
 
-
 import logging
-from logging.handlers import RotatingFileHandler
-
 
 from fastapi import (
     FastAPI,
@@ -39,21 +38,10 @@ for p in (str(_HERE), str(_PROJECT_ROOT)):
     if p not in sys.path:
         sys.path.insert(0, p)
 
-# ── Logging setup ──────────────────────────────────────────────────────────────
-_LOG_DIR = _PROJECT_ROOT / "logs"
-_LOG_DIR.mkdir(exist_ok=True)
+# ── Logging setup — single call configures the whole application ───────────────
+from utils.logging_config import setup_logging  # noqa: E402
 
-_fmt = logging.Formatter("%(asctime)s - %(levelname)s - %(name)s - %(message)s")
-
-_console_handler = logging.StreamHandler()
-_console_handler.setFormatter(_fmt)
-
-_file_handler = RotatingFileHandler(
-    _LOG_DIR / "lms_agent.log", maxBytes=5_000_000, backupCount=3
-)
-_file_handler.setFormatter(_fmt)
-
-logging.basicConfig(level=logging.DEBUG, handlers=[_console_handler, _file_handler])
+setup_logging(log_dir=_PROJECT_ROOT / "logs")
 logger = logging.getLogger(__name__)
 
 
@@ -62,10 +50,46 @@ app = FastAPI(title="LMS Agent API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    """Log every HTTP request with method, path, status code, and duration."""
+    start = time.monotonic()
+    # Extract user identity from Authorization header (best-effort, no exception on failure)
+    user_hint = ""
+    auth_header = request.headers.get("authorization", "")
+    if auth_header.startswith("Bearer "):
+        # Only log that a token is present — never log the token value
+        user_hint = " auth=bearer"
+    try:
+        response = await call_next(request)
+    except Exception as exc:
+        duration_ms = int((time.monotonic() - start) * 1000)
+        logger.error(
+            "[http] %s %s → UNHANDLED ERROR %s duration_ms=%d%s",
+            request.method,
+            request.url.path,
+            exc,
+            duration_ms,
+            user_hint,
+        )
+        raise
+    duration_ms = int((time.monotonic() - start) * 1000)
+    level = logging.WARNING if response.status_code >= 400 else logging.INFO
+    logger.log(
+        level,
+        "[http] %s %s → %d duration_ms=%d%s",
+        request.method,
+        request.url.path,
+        response.status_code,
+        duration_ms,
+        user_hint,
+    )
+    return response
 
 
 @app.on_event("startup")
@@ -88,8 +112,8 @@ async def signup(payload: UserCreate):
         user = await register_user(payload)
         return {
             "message": "Account created successfully.",
-            "user_id": user.id,
-            "username": user.username,
+            "user_id": user["id"],
+            "username": user["username"],
         }
     except AuthError as exc:
         raise HTTPException(status_code=exc.status_code, detail=str(exc))
@@ -102,8 +126,8 @@ async def login(payload: UserLogin):
     except AuthError as exc:
         raise HTTPException(status_code=exc.status_code, detail=str(exc))
 
-    token_data = create_access_token(user_id=user.id, username=user.username)
-    return token_data
+    token = create_access_token(user_id=user["id"], username=user["username"])
+    return {"access_token": token}
 
 
 @app.get("/api/auth/me")
@@ -178,6 +202,7 @@ async def upload_pdf(
     from database.models import UploadedDocument
     from sqlalchemy.dialects.postgresql import insert
     import uuid
+    import tempfile
 
     user_id = user["user_id"]
     if not session_id:
@@ -188,7 +213,16 @@ async def upload_pdf(
         raise HTTPException(status_code=400, detail="Only PDF files are supported")
 
     file_bytes = await file.read()
-    message = f"Please upload this PDF document: {title}"
+
+    # Save to a temp file so the upload_pdf tool can read it via file_path.
+    # This avoids relying on the private _invocation_context API to inject
+    # file bytes through the before_tool_callback.
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+    tmp.write(file_bytes)
+    tmp.close()
+    tmp_path = tmp.name.replace("\\", "/")
+
+    message = f'Please upload this PDF document: file_path="{tmp_path}" with display name "{title}"'
 
     # Upsert the document metadata
     async with get_session() as db:
@@ -208,13 +242,17 @@ async def upload_pdf(
                 user_id=user_id,
                 session_id=session_id,
                 message=message,
-                file_bytes=file_bytes,
-                filename=title,
             ):
                 yield {"data": chunk}
             yield {"data": "[DONE]"}
         except Exception as e:
             yield {"event": "error", "data": str(e)}
+        finally:
+            # Clean up temp file
+            try:
+                os.remove(tmp_path)
+            except OSError:
+                pass
 
     return EventSourceResponse(stream_generator())
 

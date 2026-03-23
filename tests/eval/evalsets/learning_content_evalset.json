@@ -1,0 +1,111 @@
+{
+  "eval_set_id": "learning_content_tests",
+  "name": "LearningContent_Agent Tool Trajectory Tests",
+  "description": "Validates LearningContent_Agent calls the right tools for Q&A, summaries, and flashcards",
+  "eval_cases": [
+    {
+      "eval_id": "ask_question",
+      "conversation": [
+        {
+          "invocation_id": "inv_1",
+          "user_content": {
+            "parts": [{ "text": "What is gradient descent according to my Machine Learning notes?" }]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{ "text": "Based on your Machine Learning notes, gradient descent is an optimization algorithm used to minimize the loss function." }]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              { "name": "transfer_to_agent", "args": { "agent_name": "LearningContent_Agent" } },
+              { "name": "ask_question", "args": { "question": "What is gradient descent", "document_name": "Machine Learning notes" } }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "LMS_Project_V2",
+        "user_id": "eval_user",
+        "state": { "current_user_id": "eval_user" }
+      }
+    },
+    {
+      "eval_id": "generate_brief_summary",
+      "conversation": [
+        {
+          "invocation_id": "inv_1",
+          "user_content": {
+            "parts": [{ "text": "Give me a brief summary of my Data Structures textbook" }]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{ "text": "Here is a brief summary of your Data Structures textbook." }]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              { "name": "transfer_to_agent", "args": { "agent_name": "LearningContent_Agent" } },
+              { "name": "generate_summary", "args": { "document_name": "Data Structures textbook", "summary_type": "brief" } }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "LMS_Project_V2",
+        "user_id": "eval_user",
+        "state": { "current_user_id": "eval_user" }
+      }
+    },
+    {
+      "eval_id": "generate_detailed_summary",
+      "conversation": [
+        {
+          "invocation_id": "inv_1",
+          "user_content": {
+            "parts": [{ "text": "I need a detailed summary of my Algorithms document" }]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{ "text": "Here is a detailed summary of your Algorithms document." }]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              { "name": "transfer_to_agent", "args": { "agent_name": "LearningContent_Agent" } },
+              { "name": "generate_summary", "args": { "document_name": "Algorithms document", "summary_type": "detailed" } }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "LMS_Project_V2",
+        "user_id": "eval_user",
+        "state": { "current_user_id": "eval_user" }
+      }
+    },
+    {
+      "eval_id": "generate_flashcards",
+      "conversation": [
+        {
+          "invocation_id": "inv_1",
+          "user_content": {
+            "parts": [{ "text": "Create 5 flashcards from my Biology notes" }]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{ "text": "Here are 5 flashcards from your Biology notes." }]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              { "name": "transfer_to_agent", "args": { "agent_name": "LearningContent_Agent" } },
+              { "name": "generate_flashcards", "args": { "document_name": "Biology notes", "num_cards": 5 } }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "LMS_Project_V2",
+        "user_id": "eval_user",
+        "state": { "current_user_id": "eval_user" }
+      }
+    }
+  ]
+}

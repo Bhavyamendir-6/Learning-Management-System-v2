@@ -2,15 +2,19 @@
 
 from ....config import GEMINI_MODEL_NAME
 import json
-from typing import Optional
+import logging
+from typing import Annotated, Optional
+from google.adk.tools import ToolContext
 
 from Tools.file_search_store_manager import get_client
 
+logger = logging.getLogger(__name__)
+
 
 async def check_understanding(
-    concept: Optional[str] = None,
-    tool_context=None,
-) -> str:
+    concept: Annotated[Optional[str], "The specific concept to check comprehension on; defaults to the active tutoring topic"],
+    tool_context: ToolContext,
+) -> dict:
     """
     Pose 1-2 quick comprehension questions to verify the student understands a concept.
 
@@ -21,39 +25,27 @@ async def check_understanding(
         concept: The specific concept to check; defaults to the active tutoring topic
 
     Returns:
-        str: JSON with comprehension check questions and scoring instructions
+        dict: Comprehension check questions and scoring instructions
     """
     try:
         client = get_client()
 
         # Pull from active session state
-        topic = concept or ""
-        document_name = ""
-        difficulty_level = "intermediate"
-        topic_content = ""
-        history = []
-
-        if tool_context:
-            if not topic:
-                topic = tool_context.state.get("tutor_topic", "the current topic")
-            document_name = tool_context.state.get("tutor_document", "")
-            difficulty_level = tool_context.state.get(
-                "tutor_difficulty", "intermediate"
-            )
-            topic_content = tool_context.state.get("tutor_content", "")
-            history = tool_context.state.get("tutor_history", [])
+        topic = concept or tool_context.state.get("tutor_topic", "the current topic")
+        document_name = tool_context.state.get("tutor_document", "")
+        difficulty_level = tool_context.state.get("tutor_difficulty", "intermediate")
+        topic_content = tool_context.state.get("tutor_content", "")
+        history = tool_context.state.get("tutor_history", [])
 
         # Guard: require an active tutoring session with loaded content
         if not topic_content:
-            return json.dumps(
-                {
-                    "status": "error",
-                    "error": (
-                        "No active tutoring session found. "
-                        "Please start a tutoring session first by calling start_tutoring_session."
-                    ),
-                }
-            )
+            return {
+                "status": "error",
+                "error": (
+                    "No active tutoring session found. "
+                    "Please start a tutoring session first by calling start_tutoring_session."
+                ),
+            }
 
         # Summarise recent conversation for context
         recent_history = history[-6:] if len(history) > 6 else history
@@ -95,7 +87,7 @@ async def check_understanding(
             "Format as a clear, friendly check-in, not a formal exam."
         )
 
-        response = client.models.generate_content(
+        response = await client.aio.models.generate_content(
             model=GEMINI_MODEL_NAME,
             contents=check_prompt,
         )
@@ -105,33 +97,30 @@ async def check_understanding(
         )
 
         # Mark the check in history
-        if tool_context:
-            history = tool_context.state.get("tutor_history", [])
-            history.append(
-                {
-                    "role": "tutor",
-                    "content": f"[Understanding Check]\n{check_message}",
-                }
-            )
-            tool_context.state["tutor_history"] = history
-
-            # Persist to database
-            try:
-                from Tools.db_handler import update_tutor_session_history
-
-                tutor_session_id = tool_context.state.get("tutor_session_id")
-                if tutor_session_id:
-                    await update_tutor_session_history(tutor_session_id, history)
-            except Exception as e:
-                print(f"[check_understanding] DB update warning: {str(e)}")
-
-        return json.dumps(
+        history = tool_context.state.get("tutor_history", [])
+        history.append(
             {
-                "status": "understanding_check",
-                "concept": topic,
-                "check_message": check_message,
+                "role": "tutor",
+                "content": f"[Understanding Check]\n{check_message}",
             }
         )
+        tool_context.state["tutor_history"] = history
+
+        # Persist to database
+        try:
+            from Tools.db_handler import update_tutor_session_history
+
+            tutor_session_id = tool_context.state.get("tutor_session_id")
+            if tutor_session_id:
+                await update_tutor_session_history(tutor_session_id, history)
+        except Exception as e:
+            logger.warning("[check_understanding] DB update warning: %s", e)
+
+        return {
+            "status": "understanding_check",
+            "concept": topic,
+            "check_message": check_message,
+        }
 
     except Exception as e:
-        return f"Error generating understanding check: {str(e)}"
+        return {"status": "error", "message": f"Error generating understanding check: {str(e)}"}
