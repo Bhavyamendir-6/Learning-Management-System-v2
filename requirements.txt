@@ -20,3 +20,10 @@ python-multipart          # For handling file uploads (multipart form data)
 PyJWT>=2.8.0              # JWT signing/verification (HS256)
 bcrypt>=4.0.0             # Password hashing (work factor 12)
 
+# ── Dependency Resolution Bounds (Render Fix) ─────────────────────────────────
+urllib3>=1.26.15,<3.0.0
+uritemplate>=4.1.1
+tzlocal>=5.3
+typing-extensions>=4.5
+tenacity>=9.0.0
+starlette>=0.30.0
