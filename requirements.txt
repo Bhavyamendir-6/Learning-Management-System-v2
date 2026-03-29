@@ -21,9 +21,21 @@ PyJWT>=2.8.0              # JWT signing/verification (HS256)
 bcrypt>=4.0.0             # Password hashing (work factor 12)
 
 # ── Dependency Resolution Bounds (Render Fix) ─────────────────────────────────
-urllib3>=1.26.15,<3.0.0
-uritemplate>=4.1.1
-tzlocal>=5.3
-typing-extensions>=4.5
-tenacity>=9.0.0
-starlette>=0.30.0
+# Locking down ALL dependencies that caused pip to loop
+google-api-python-client==2.187.0
+googleapis-common-protos==1.72.0
+grpcio==1.76.0
+idna==3.11
+charset-normalizer==3.4.4
+requests==2.32.5
+PyYAML==6.0.3
+pyparsing==3.3.1
+urllib3==2.6.3
+uritemplate==4.2.0
+tzlocal==5.3.1
+typing-extensions==4.15.0
+tenacity==9.1.2
+starlette==0.50.0
+fastapi==0.123.10
+pydantic==2.12.5
+uvicorn==0.40.0
