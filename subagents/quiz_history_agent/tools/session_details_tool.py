@@ -8,7 +8,7 @@ from Tools.file_search_store_manager import extract_user_id_from_context
 
 async def session_details(
     quiz_session_id: Annotated[str, "The UUID of the quiz session to retrieve details for"],
-    tool_context: ToolContext,
+    tool_context: ToolContext = None,
 ) -> dict:
     """
     Retrieve detailed results for a specific quiz session including all answers.

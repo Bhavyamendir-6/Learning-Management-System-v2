@@ -1,0 +1,63 @@
+{
+  "eval_set_id": "quiz_grounding_tests",
+  "name": "Quiz Grounding Quality Tests",
+  "description": "Uses LLM-as-judge to verify that generated quiz questions are grounded in the source document content. Each eval case embeds reference document content in the user message so the judge can compare the generated quiz against the known source material.",
+  "eval_cases": [
+    {
+      "eval_id": "quiz_grounding_machine_learning",
+      "conversation": [
+        {
+          "invocation_id": "inv_1",
+          "user_content": {
+            "parts": [
+              {
+                "text": "I have uploaded a document called 'Machine Learning Fundamentals'. Here is the key content from that document:\n\n--- DOCUMENT CONTENT START ---\nSupervised learning is a type of machine learning where a model is trained on labelled examples, meaning each training input has a corresponding correct output. The model learns to map inputs to outputs by minimising a loss function, which measures the difference between the model's predictions and the true labels. Gradient descent is the optimisation algorithm used to minimise the loss function by iteratively adjusting the model's weights in the direction that reduces the loss. The learning rate controls the size of each update step during gradient descent; a learning rate that is too large causes the model to overshoot the minimum, while one that is too small makes training very slow. Overfitting occurs when a model learns the training data too well, including its noise and outliers, causing poor performance on unseen data. Regularisation techniques such as L1 and L2 penalties add a term to the loss function that discourages large weights, reducing overfitting. A validation set is a portion of data held out from training and used to tune hyperparameters and detect overfitting before the model is evaluated on the test set.\n--- DOCUMENT CONTENT END ---\n\nPlease generate a quiz on my Machine Learning Fundamentals document."
+              }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Here is your quiz on Machine Learning Fundamentals:\n\n**Question 1:** What is supervised learning?\nA) Training a model without any labelled data\nB) Training a model on labelled examples where each input has a correct output\nC) A technique for reducing overfitting\nD) An optimisation algorithm for adjusting weights\n**Correct Answer: B**\nHint: Think about what makes supervised learning different from other learning paradigms.\nExplanation: Supervised learning uses labelled examples — each training input is paired with a correct output — so the model learns to map inputs to outputs.\n\n**Question 2:** What does the loss function measure?\nA) The speed of gradient descent\nB) The number of training examples\nC) The difference between the model's predictions and the true labels\nD) The size of the model's weights\n**Correct Answer: C**\nHint: The loss function gives the model feedback during training.\nExplanation: The loss function measures the difference between what the model predicts and the correct labels, guiding the optimisation process.\n\n**Question 3:** What happens if the learning rate is too large during gradient descent?\nA) Training becomes very slow\nB) The model memorises the training data\nC) The model overshoots the minimum\nD) The validation loss decreases faster\n**Correct Answer: C**\nHint: Consider what 'overshoot' means geometrically when descending a loss surface.\nExplanation: A learning rate that is too large causes the model to take steps that are too big, overshooting the minimum of the loss function.\n\n**Question 4:** What is overfitting?\nA) When a model performs well on training and test data\nB) When a model learns training data too well, including noise, causing poor generalisation\nC) When the learning rate is set too high\nD) When regularisation is applied too aggressively\n**Correct Answer: B**\nHint: Overfitting is related to how well a model generalises to unseen data.\nExplanation: Overfitting occurs when the model memorises the training data, including its noise, and thus performs poorly on new, unseen data.\n\n**Question 5:** What is the purpose of regularisation techniques like L1 and L2?\nA) To increase the model's learning rate\nB) To add more training examples\nC) To add a penalty for large weights, reducing overfitting\nD) To split the dataset into training and validation sets\n**Correct Answer: C**\nHint: Regularisation modifies the loss function to constrain the model's complexity.\nExplanation: L1 and L2 regularisation add a penalty term to the loss function based on the magnitude of the weights, discouraging overly large weights and reducing overfitting."
+              }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "LMS_Project_V2",
+        "user_id": "eval_user",
+        "state": { "current_user_id": "eval_user" }
+      }
+    },
+    {
+      "eval_id": "quiz_grounding_operating_systems",
+      "conversation": [
+        {
+          "invocation_id": "inv_1",
+          "user_content": {
+            "parts": [
+              {
+                "text": "I have uploaded a document called 'Operating Systems Notes'. Here is the key content from that document:\n\n--- DOCUMENT CONTENT START ---\nA process is a program in execution and is the basic unit of work in an operating system. The operating system scheduler decides which process gets access to the CPU using scheduling algorithms such as Round Robin, where each process is given a fixed time slice, and Shortest Job First, which prioritises processes with the smallest estimated execution time. Virtual memory is a memory management technique that gives each process the illusion of having its own large, contiguous address space, even if physical RAM is limited. The operating system uses page tables to translate virtual addresses used by a process into physical addresses in RAM. When a required page is not in RAM, a page fault occurs and the OS loads the missing page from disk into RAM. A deadlock is a situation where two or more processes are each waiting for a resource held by another, causing all of them to be stuck indefinitely. The four necessary conditions for deadlock are mutual exclusion, hold and wait, no preemption, and circular wait. A semaphore is a synchronisation primitive used to control access to shared resources; a binary semaphore (mutex) allows only one process to access a resource at a time.\n--- DOCUMENT CONTENT END ---\n\nPlease generate a quiz on my Operating Systems Notes document."
+              }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Here is your quiz on Operating Systems Notes:\n\n**Question 1:** What is a process in an operating system?\nA) A file stored on disk waiting to be executed\nB) A program in execution and the basic unit of work in an OS\nC) A scheduling algorithm that assigns CPU time\nD) A region of physical memory reserved for the kernel\n**Correct Answer: B**\nHint: Think about how a program becomes active.\nExplanation: A process is a program in execution. It is the basic unit of work managed by the operating system.\n\n**Question 2:** How does Round Robin scheduling work?\nA) Processes with the smallest execution time are prioritised\nB) The process with the highest priority always runs first\nC) Each process is given a fixed time slice in turn\nD) Processes are ordered by their arrival time and never interrupted\n**Correct Answer: C**\nHint: Think about taking turns with equal time slots.\nExplanation: In Round Robin scheduling, each process is given a fixed time slice (quantum). Once the slice expires, the next process in the queue gets the CPU.\n\n**Question 3:** What is the role of page tables in virtual memory?\nA) They store the actual content of each page on disk\nB) They track which processes are currently waiting for CPU time\nC) They translate virtual addresses used by a process into physical RAM addresses\nD) They define the scheduling algorithm used by the OS\n**Correct Answer: C**\nHint: Page tables bridge two different address spaces.\nExplanation: The OS uses page tables to translate the virtual addresses that a process uses into the actual physical addresses in RAM.\n\n**Question 4:** Which of the following is NOT one of the four necessary conditions for deadlock?\nA) Mutual exclusion\nB) Circular wait\nC) Time slicing\nD) Hold and wait\n**Correct Answer: C**\nHint: The four conditions come directly from the document — one of these options was not listed.\nExplanation: The four necessary conditions for deadlock listed in the document are mutual exclusion, hold and wait, no preemption, and circular wait. Time slicing is a scheduling concept, not a deadlock condition.\n\n**Question 5:** What is a binary semaphore (mutex) used for?\nA) Translating virtual addresses to physical addresses\nB) Allowing only one process to access a shared resource at a time\nC) Detecting page faults when a page is missing from RAM\nD) Implementing the Shortest Job First scheduling algorithm\n**Correct Answer: B**\nHint: Think about mutual exclusion and resource access control.\nExplanation: A binary semaphore, or mutex, is a synchronisation primitive that ensures only one process can access a shared resource at a time, preventing race conditions."
+              }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "LMS_Project_V2",
+        "user_id": "eval_user",
+        "state": { "current_user_id": "eval_user" }
+      }
+    }
+  ]
+}

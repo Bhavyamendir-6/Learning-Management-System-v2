@@ -91,7 +91,6 @@ async def start_tutoring_session(
                 ],
             ),
         )
-
         topic_content = retrieval_response.text or ""
         if not topic_content.strip():
             return {
@@ -137,7 +136,6 @@ async def start_tutoring_session(
                 response_schema=TutoringOpening,
             ),
         )
-
         opening_data: TutoringOpening = opening_response.parsed
         if opening_data:
             opening_message = (

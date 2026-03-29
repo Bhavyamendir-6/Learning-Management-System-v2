@@ -294,20 +294,167 @@ export default function ChatBubble({ role, text, ts, isStreaming, animateTyping,
         let quizData = null;
 
         if (!isUser && !isStreaming) {
-            // Look for ```json ... ``` blocks
-            const jsonRegex = /```json\n([\s\S]*?)\n```/g;
-            const match = jsonRegex.exec(text);
-
-            if (match && match[1]) {
+            /**
+             * Helper: try to parse a JSON string, with fallbacks for common LLM quirks
+             * (single quotes, Python True/False/None, trailing commas).
+             */
+            const tryParseJSON = (raw: string): any | null => {
+                const str = raw.trim();
+                if (!str.startsWith("{") && !str.startsWith("[")) return null;
                 try {
-                    const parsed = JSON.parse(match[1]);
-                    if (parsed.questions && Array.isArray(parsed.questions)) {
-                        quizData = parsed;
-                        // Remove the JSON block from the text so we don't render it raw
-                        parsedText = text.replace(match[0], "").trim();
+                    return JSON.parse(str);
+                } catch {
+                    try {
+                        const clean = str
+                            .replace(/'/g, '"')
+                            .replace(/\bTrue\b/g, 'true')
+                            .replace(/\bFalse\b/g, 'false')
+                            .replace(/\bNone\b/g, 'null')
+                            .replace(/,\s*([}\]])/g, '$1'); // trailing commas
+                        return JSON.parse(clean);
+                    } catch {
+                        return null;
                     }
-                } catch (e) {
-                    // Not valid JSON, ignore
+                }
+            };
+
+            /** Helper: unwrap LLM wrapper keys like "generate_quiz_response" */
+            const unwrapQuizObj = (obj: any): any => {
+                if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return obj;
+                // If it already has questions, return as-is
+                if (obj.questions && Array.isArray(obj.questions)) return obj;
+                // Check one level deep — the LLM may wrap in "generate_quiz_response", etc.
+                const keys = Object.keys(obj);
+                for (const key of keys) {
+                    const val = obj[key];
+                    if (val && typeof val === 'object' && !Array.isArray(val)) {
+                        if (val.questions && Array.isArray(val.questions)) return val;
+                    }
+                }
+                return obj;
+            };
+
+            /** Helper: check if a parsed object looks like quiz data */
+            const isQuizData = (obj: any): boolean => {
+                if (!obj) return false;
+                const unwrapped = unwrapQuizObj(obj);
+                // Direct {questions: [...]} shape
+                if (unwrapped.questions && Array.isArray(unwrapped.questions) && unwrapped.questions.length > 0) return true;
+                // Bare array of question objects
+                if (Array.isArray(obj) && obj.length > 0 && (obj[0].question_number !== undefined || obj[0].question_text !== undefined || obj[0].question !== undefined)) return true;
+                return false;
+            };
+
+            /** Helper: normalize parsed data into {questions: [...]} shape */
+            const normalizeQuizObj = (parsed: any): any => {
+                if (Array.isArray(parsed)) return { questions: parsed };
+                return unwrapQuizObj(parsed);
+            };
+
+            // ── Pattern 1: ```json ... ``` fenced code block ──
+            // Case-insensitive, handles any whitespace/CRLF variant
+            const codeBlockRegex = /```json\s*([\s\S]*?)```/gi;
+            let match = codeBlockRegex.exec(text);
+            while (match && match[1]) {
+                const parsed = tryParseJSON(match[1]);
+                if (isQuizData(parsed)) {
+                    quizData = normalizeQuizObj(parsed);
+                    parsedText = text.replace(match[0], "").trim();
+                    break;
+                }
+                match = codeBlockRegex.exec(text);
+            }
+
+            // ── Pattern 2: Any ``` ... ``` code block (LLM may omit "json" language tag) ──
+            if (!quizData) {
+                const anyCodeBlock = /```\s*\n([\s\S]*?)```/g;
+                let m2 = anyCodeBlock.exec(text);
+                while (m2 && m2[1]) {
+                    const parsed = tryParseJSON(m2[1]);
+                    if (isQuizData(parsed)) {
+                        quizData = normalizeQuizObj(parsed);
+                        parsedText = text.replace(m2[0], "").trim();
+                        break;
+                    }
+                    m2 = anyCodeBlock.exec(text);
+                }
+            }
+
+            // ── Pattern 3: Bare JSON object with "questions" key (no code block) ──
+            // Uses brace-matching to find the true end of the JSON object.
+            if (!quizData) {
+                const questionsIdx = text.indexOf('"questions"');
+                if (questionsIdx !== -1) {
+                    const start = text.lastIndexOf("{", questionsIdx);
+                    if (start !== -1) {
+                        try {
+                            let depth = 0;
+                            let end = start;
+                            let inString = false;
+                            while (end < text.length) {
+                                const ch = text[end];
+                                if (inString) {
+                                    if (ch === "\\") { end++; } // skip escaped char
+                                    else if (ch === '"') { inString = false; }
+                                } else {
+                                    if (ch === '"') { inString = true; }
+                                    else if (ch === "{" || ch === "[") { depth++; }
+                                    else if (ch === "}" || ch === "]") {
+                                        depth--;
+                                        if (depth === 0) { end++; break; }
+                                    }
+                                }
+                                end++;
+                            }
+                            const jsonStr = text.slice(start, end);
+                            const parsed = tryParseJSON(jsonStr);
+                            if (isQuizData(parsed)) {
+                                quizData = normalizeQuizObj(parsed);
+                                parsedText = text.slice(0, start).trim();
+                            }
+                        } catch (e) {
+                            console.warn("[ChatBubble] Pattern 3 JSON parse failed:", e);
+                        }
+                    }
+                }
+            }
+
+            // ── Pattern 4: Look for "question_number" anywhere — LLM may have dumped
+            //    the questions array without a wrapper object ──
+            if (!quizData) {
+                const arrIdx = text.indexOf('"question_number"');
+                if (arrIdx !== -1) {
+                    const arrStart = text.lastIndexOf("[", arrIdx);
+                    if (arrStart !== -1) {
+                        try {
+                            let depth = 0;
+                            let end = arrStart;
+                            let inString = false;
+                            while (end < text.length) {
+                                const ch = text[end];
+                                if (inString) {
+                                    if (ch === "\\") { end++; }
+                                    else if (ch === '"') { inString = false; }
+                                } else {
+                                    if (ch === '"') { inString = true; }
+                                    else if (ch === "[" || ch === "{") { depth++; }
+                                    else if (ch === "]" || ch === "}") {
+                                        depth--;
+                                        if (depth === 0) { end++; break; }
+                                    }
+                                }
+                                end++;
+                            }
+                            const jsonStr = text.slice(arrStart, end);
+                            const parsed = tryParseJSON(jsonStr);
+                            if (isQuizData(parsed)) {
+                                quizData = normalizeQuizObj(parsed);
+                                parsedText = text.slice(0, arrStart).trim();
+                            }
+                        } catch (e) {
+                            console.warn("[ChatBubble] Pattern 4 JSON parse failed:", e);
+                        }
+                    }
                 }
             }
         }

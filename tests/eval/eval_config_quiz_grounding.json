@@ -1,0 +1,40 @@
+{
+  "criteria": {
+    "rubric_based_final_response_quality_v1": {
+      "threshold": 0.75,
+      "rubrics": [
+        {
+          "rubric_id": "quiz_content_grounding",
+          "rubric_content": {
+            "text_property": "Every quiz question is about a topic that is explicitly present in the document content provided in the conversation. No question tests knowledge that is absent from the provided document."
+          }
+        },
+        {
+          "rubric_id": "quiz_answer_verifiability",
+          "rubric_content": {
+            "text_property": "The correct answer for each quiz question can be directly found or clearly inferred from the document content provided in the conversation. A reader using only the provided document content could identify the correct answer without any external knowledge."
+          }
+        },
+        {
+          "rubric_id": "quiz_distractor_quality",
+          "rubric_content": {
+            "text_property": "The incorrect answer options (distractors) for each question are plausible given the document topic but are verifiably wrong based on the document content. No distractor option is actually correct according to the provided document."
+          }
+        },
+        {
+          "rubric_id": "quiz_no_external_knowledge",
+          "rubric_content": {
+            "text_property": "The quiz does not rely on external knowledge or general facts beyond what is stated in the provided document content. Questions about related topics that are not covered in the provided document excerpt are absent."
+          }
+        }
+      ],
+      "judge_model_options": {
+        "judge_model": "gemini-2.5-flash",
+        "num_samples": 3
+      }
+    },
+    "hallucinations_v1": {
+      "threshold": 0.7
+    }
+  }
+}

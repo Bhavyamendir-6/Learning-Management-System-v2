@@ -7,8 +7,8 @@ from Tools.file_search_store_manager import extract_user_id_from_context
 
 
 async def document_stats(
-    document_name: Annotated[Optional[str], "The document to get stats for. Leave blank to get stats for all documents."],
-    tool_context: ToolContext,
+    document_name: Annotated[Optional[str], "The document to get stats for. Leave blank to get stats for all documents."] = None,
+    tool_context: ToolContext = None,
 ) -> dict:
     """
     Retrieve quiz performance statistics for a specific document or all documents.

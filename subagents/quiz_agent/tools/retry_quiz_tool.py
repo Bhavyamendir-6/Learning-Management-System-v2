@@ -184,7 +184,7 @@ async def retry_quiz(
             "retry_of_session": original_session_id,
             "wrong_topics_count": len(wrong_topics),
             "total_questions": len(questions),
-            "first_question": questions[0],
+            "questions": questions,
         }
 
     except json.JSONDecodeError:

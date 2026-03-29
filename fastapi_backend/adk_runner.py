@@ -145,6 +145,8 @@ async def run_agent_stream(
     # Track emitted status events so we don't duplicate
     _emitted: set[str] = set()
 
+    full_response = ""
+
     async for event in _runner.run_async(
         user_id=user_id,
         session_id=session_id,
@@ -157,14 +159,15 @@ async def run_agent_stream(
             and hasattr(event.actions, "transfer_to_agent")
             and event.actions.transfer_to_agent
         ):
-            key = f"transfer:{event.actions.transfer_to_agent}"
+            agent_name = event.actions.transfer_to_agent
+            key = f"transfer:{agent_name}"
             if key not in _emitted:
                 _emitted.add(key)
                 yield _json.dumps(
                     {
                         "type": "status",
                         "event": "agent_transfer",
-                        "agent": event.actions.transfer_to_agent,
+                        "agent": agent_name,
                     }
                 )
 
@@ -195,6 +198,7 @@ async def run_agent_stream(
             if event.content and event.content.parts:
                 for part in event.content.parts:
                     if part.text:
+                        full_response += part.text
                         yield _json.dumps({"type": "text", "content": part.text})
 
 

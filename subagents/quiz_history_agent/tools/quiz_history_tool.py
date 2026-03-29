@@ -7,9 +7,9 @@ from Tools.file_search_store_manager import extract_user_id_from_context
 
 
 async def quiz_history(
-    document_name: Annotated[Optional[str], "Filter results to quizzes on a specific document. Leave blank for all quizzes."],
-    limit: Annotated[int, "Maximum number of sessions to return (recommended: 10)"],
-    tool_context: ToolContext,
+    document_name: Annotated[Optional[str], "Filter results to quizzes on a specific document. Leave blank for all quizzes."] = None,
+    limit: Annotated[int, "Maximum number of sessions to return (recommended: 10)"] = 10,
+    tool_context: ToolContext = None,
 ) -> dict:
     """
     Retrieve the user's past quiz sessions with scores.

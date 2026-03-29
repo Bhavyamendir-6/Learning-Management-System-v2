@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Optional
 
 import logging
-
 from fastapi import (
     FastAPI,
     Depends,
@@ -222,7 +221,7 @@ async def upload_pdf(
     tmp.close()
     tmp_path = tmp.name.replace("\\", "/")
 
-    message = f'Please upload this PDF document: file_path="{tmp_path}" with display name "{title}"'
+    message = f'Upload this PDF document. file_path="{tmp_path}" display_name="{title}"'
 
     # Upsert the document metadata
     async with get_session() as db:

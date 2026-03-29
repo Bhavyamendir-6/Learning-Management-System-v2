@@ -128,7 +128,7 @@ export default function ChatPage() {
     setMessages((prev) => [...prev, { role: "agent", text: "", animateTyping: true }]);
 
     try {
-      const response = await fetch("http://localhost:5001/api/upload", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001/api"}/upload`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
@@ -152,6 +152,7 @@ export default function ChatPage() {
     const decoder = new TextDecoder();
     let done = false;
     let stepCounter = 0;
+    let currentEventType = "message";
 
     // Read the EventSource stream format manually since fetch doesn't native parse SSE
     while (!done) {
@@ -161,75 +162,100 @@ export default function ChatPage() {
         const chunk = decoder.decode(value, { stream: true });
         const lines = chunk.split("\n");
         for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const dataStr = line.substring(6);
-            if (dataStr === "[DONE]") {
-              done = true;
-              break;
-            } else if (dataStr) {
-              // Try to parse as JSON (new format)
-              let parsed: { type?: string; event?: string; tool?: string; agent?: string; content?: string } | null = null;
-              try {
-                parsed = JSON.parse(dataStr);
-              } catch {
-                // Not JSON — treat as raw text (backward compat)
-                parsed = null;
+          // Track event type across lines (SSE multi-line format)
+          if (line.startsWith("event: ")) {
+            currentEventType = line.substring(7).trim();
+            continue;
+          }
+
+          if (!line.startsWith("data: ")) continue;
+
+          const dataStr = line.substring(6);
+
+          // Reset event type after consuming the data line
+          const eventType = currentEventType;
+          currentEventType = "message";
+
+          if (dataStr === "[DONE]") {
+            done = true;
+            break;
+          }
+
+          if (!dataStr) continue;
+
+          // ── Error event from backend ──
+          if (eventType === "error") {
+            setMessages((prev) => {
+              const newArr = [...prev];
+              const lastIdx = newArr.length - 1;
+              if (lastIdx >= 0 && newArr[lastIdx].role === "agent") {
+                newArr[lastIdx] = { ...newArr[lastIdx], text: "Sorry, something went wrong. Please try again.", animateTyping: false };
               }
+              return newArr;
+            });
+            done = true;
+            break;
+          }
 
-              if (parsed && parsed.type === "status") {
-                // ── Status event: tool call or agent transfer ──
-                const stepName = parsed.event === "agent_transfer" ? (parsed.agent || "Agent") : (parsed.tool || "Processing");
-                const newStep: ThinkingStep = {
-                  id: `step-${++stepCounter}`,
-                  type: parsed.event === "agent_transfer" ? "agent_transfer" : "tool_call",
-                  name: stepName,
-                  agent: parsed.agent || "",
-                  status: "active",
-                  timestamp: Date.now(),
-                };
+          // Try to parse as JSON (new format)
+          let parsed: { type?: string; event?: string; tool?: string; agent?: string; content?: string } | null = null;
+          try {
+            parsed = JSON.parse(dataStr);
+          } catch {
+            // Not JSON — treat as raw text (backward compat)
+            parsed = null;
+          }
 
-                setThinkingSteps((prev) => {
-                  // Mark all previous active steps as done
-                  const updated = prev.map((s) =>
-                    s.status === "active" ? { ...s, status: "done" as const } : s
-                  );
-                  return [...updated, newStep];
-                });
-              } else if (parsed && parsed.type === "text" && parsed.content) {
-                // ── Text event: final response content ──
-                // Mark all thinking steps as done when text arrives
-                setThinkingSteps((prev) =>
-                  prev.map((s) => (s.status === "active" ? { ...s, status: "done" as const } : s))
-                );
-                setMessages((prev) => {
-                  const newArr = [...prev];
-                  const lastIdx = newArr.length - 1;
-                  // Safety check: if there's no agent message yet (race condition), create one
-                  if (lastIdx < 0 || newArr[lastIdx].role !== "agent") {
-                    newArr.push({ role: "agent", text: parsed!.content || "", animateTyping: true });
-                  } else {
-                    newArr[lastIdx] = { ...newArr[lastIdx], text: newArr[lastIdx].text + parsed!.content };
-                  }
-                  return newArr;
-                });
+          if (parsed && parsed.type === "status") {
+            // ── Status event: tool call or agent transfer ──
+            const stepName = parsed.event === "agent_transfer" ? (parsed.agent || "Agent") : (parsed.tool || "Processing");
+            const newStep: ThinkingStep = {
+              id: `step-${++stepCounter}`,
+              type: parsed.event === "agent_transfer" ? "agent_transfer" : "tool_call",
+              name: stepName,
+              agent: parsed.agent || "",
+              status: "active",
+              timestamp: Date.now(),
+            };
+
+            setThinkingSteps((prev) => {
+              // Mark all previous active steps as done
+              const updated = prev.map((s) =>
+                s.status === "active" ? { ...s, status: "done" as const } : s
+              );
+              return [...updated, newStep];
+            });
+          } else if (parsed && parsed.type === "text" && parsed.content) {
+            // ── Text event: final response content ──
+            // Mark all thinking steps as done when text arrives
+            setThinkingSteps((prev) =>
+              prev.map((s) => (s.status === "active" ? { ...s, status: "done" as const } : s))
+            );
+            setMessages((prev) => {
+              const newArr = [...prev];
+              const lastIdx = newArr.length - 1;
+              // Safety check: if there's no agent message yet (race condition), create one
+              if (lastIdx < 0 || newArr[lastIdx].role !== "agent") {
+                newArr.push({ role: "agent", text: parsed!.content || "", animateTyping: true });
               } else {
-                // ── Fallback: raw text (backward compat) ──
-                const rawText = parsed?.content || dataStr;
-                setMessages((prev) => {
-                  const newArr = [...prev];
-                  const lastIdx = newArr.length - 1;
-                  // Safety check: if there's no agent message yet (race condition), create one
-                  if (lastIdx < 0 || newArr[lastIdx].role !== "agent") {
-                    newArr.push({ role: "agent", text: rawText, animateTyping: true });
-                  } else {
-                    newArr[lastIdx] = { ...newArr[lastIdx], text: newArr[lastIdx].text + rawText };
-                  }
-                  return newArr;
-                });
+                newArr[lastIdx] = { ...newArr[lastIdx], text: newArr[lastIdx].text + parsed!.content };
               }
-            }
-          } else if (line.startsWith("event: error")) {
-            console.error("Stream error");
+              return newArr;
+            });
+          } else {
+            // ── Fallback: raw text (backward compat) ──
+            const rawText = parsed?.content || dataStr;
+            setMessages((prev) => {
+              const newArr = [...prev];
+              const lastIdx = newArr.length - 1;
+              // Safety check: if there's no agent message yet (race condition), create one
+              if (lastIdx < 0 || newArr[lastIdx].role !== "agent") {
+                newArr.push({ role: "agent", text: rawText, animateTyping: true });
+              } else {
+                newArr[lastIdx] = { ...newArr[lastIdx], text: newArr[lastIdx].text + rawText };
+              }
+              return newArr;
+            });
           }
         }
       }
@@ -263,7 +289,7 @@ export default function ChatPage() {
     setMessages((prev) => [...prev, { role: "agent", text: "", animateTyping: true }]);
 
     try {
-      const response = await fetch("http://localhost:5001/api/chat", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001/api"}/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

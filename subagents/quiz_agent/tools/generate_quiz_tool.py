@@ -196,14 +196,13 @@ async def generate_quiz(
             # Non-fatal: quiz works in-memory even if DB persistence fails
             logger.warning("[generate_quiz] DB persistence warning: %s", e)
 
-        quiz_session_id = tool_context.state.get("quiz_session_id")
+        quiz_session_id = tool_context.state.get("current_quiz_session_id")
         return {
             "status": "quiz_generated",
             "document": document_name,
             "total_questions": len(questions),
             "questions": questions,
             "quiz_session_id": quiz_session_id,
-            "first_question": questions[0],
         }
 
     except Exception as e:

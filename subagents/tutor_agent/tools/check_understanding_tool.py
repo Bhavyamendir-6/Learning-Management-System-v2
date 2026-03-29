@@ -91,7 +91,6 @@ async def check_understanding(
             model=GEMINI_MODEL_NAME,
             contents=check_prompt,
         )
-
         check_message = response.text or (
             f"Let's do a quick check on '{topic}'. Can you explain the main idea in your own words?"
         )

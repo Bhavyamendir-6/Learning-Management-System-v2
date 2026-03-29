@@ -65,7 +65,6 @@ async def ask_question(
                 ],
             ),
         )
-
         answer = response.text or "Failed to generate an answer. Please try again."
         return {"status": "success", "answer": answer}
 

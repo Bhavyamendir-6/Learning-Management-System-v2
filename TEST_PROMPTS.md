@@ -60,6 +60,7 @@ Show me all my uploaded PDF files
 ```
 Generate a 5 question quiz from my uploaded Python document
 ```
+*Note: Generating a quiz now outputs an **interactive UI widget** where you can click your answers and submit them directly.*
 
 ---
 
@@ -68,7 +69,7 @@ Generate a 5 question quiz from my uploaded Python document
 ```
 My answer is option B
 ```
-*Note: Used during an active quiz session. First generate a quiz, then use this to answer questions.*
+*Note: Primarily used during a text-based active quiz session as a fallback to the interactive UI.*
 
 ---
 
@@ -77,7 +78,7 @@ My answer is option B
 ```
 I want to finish the quiz now and see my results
 ```
-*Note: Use this during an active quiz to end it and see the final score.*
+*Note: Use this to prematurely end a text-based quiz.*
 
 ---
 
@@ -168,6 +169,7 @@ What are the key points from Python_Basics.pdf?
 ```
 Generate 10 flashcards from Python_Basics.pdf
 ```
+*Note: Flashcards are now rendered using an **interactive flipping UI**.*
 
 **With topic focus:**
 ```
@@ -244,9 +246,25 @@ Get my notes for Python_Basics.pdf
 
 ---
 
+### 19. `request_example`
+**Test Prompt:**
+```
+Give me a real-world example of how Python decorators are used
+```
+
+---
+
+### 20. `suggest_resources`
+**Test Prompt:**
+```
+Suggest some good resources or books to learn more about Python functions
+```
+
+---
+
 ## Community_Agent Tools
 
-### 19. `publish_to_community`
+### 21. `publish_to_community`
 **Test Prompt:**
 ```
 Publish my recently generated quiz to the community
@@ -260,6 +278,14 @@ Share my flashcards with other students
 **Another:**
 ```
 Upload my latest quiz to the community hub so others can practice
+```
+
+---
+
+### 22. `trending_insights`
+**Test Prompt:**
+```
+What are the trending topics in the community right now?
 ```
 
 ---
@@ -381,7 +407,10 @@ Upload my latest quiz to the community hub so others can practice
 | `check_understanding` | AI_Tutor | `Check if I understood` |
 | `save_learning_notes` | AI_Tutor | `Save note: <insight>` |
 | `get_learning_notes` | AI_Tutor | `Show my learning notes` |
+| `request_example` | AI_Tutor | `Give me an example of this` |
+| `suggest_resources` | AI_Tutor | `Suggest resources to learn more` |
 | `publish_to_community` | Community_Agent | `Publish my quiz to the community` |
+| `trending_insights` | Community_Agent | `What's trending in the community?` |
 
 
 ---
@@ -412,4 +441,4 @@ Upload my latest quiz to the community hub so others can practice
 
 ---
 
-*Updated: 2026-02-26*
+*Updated: 2026-03-29*

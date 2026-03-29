@@ -79,7 +79,6 @@ async def ask_followup(
             model=GEMINI_MODEL_NAME,
             contents=followup_prompt,
         )
-
         tutor_message = (
             response.text or "Interesting! Can you tell me more about what you think?"
         )
