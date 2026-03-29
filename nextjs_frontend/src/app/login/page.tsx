@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { fetchAPI, setToken } from "@/lib/api";
+import { fetchAPI, setToken } from "../../lib/api";
 import { useRouter } from "next/navigation";
 
 export default function Login() {

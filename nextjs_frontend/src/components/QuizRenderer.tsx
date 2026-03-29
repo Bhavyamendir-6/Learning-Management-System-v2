@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { fetchAPI } from "@/lib/api";
+import { fetchAPI } from "../lib/api";
 
 interface Question {
     question_number: number;

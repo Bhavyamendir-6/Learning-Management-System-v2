@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { fetchAPI, getToken, clearToken } from "@/lib/api";
+import { fetchAPI, getToken, clearToken } from "../lib/api";
 import { useRouter } from "next/navigation";
-import Sidebar from "@/components/Sidebar";
-import ChatBubble from "@/components/ChatBubble";
-import PdfUploader from "@/components/PdfUploader";
-import { ThemeToggle } from "@/components/theme-toggle";
-import type { ThinkingStep } from "@/components/AgentThinkingIndicator";
+import Sidebar from "../components/Sidebar";
+import ChatBubble from "../components/ChatBubble";
+import PdfUploader from "../components/PdfUploader";
+import { ThemeToggle } from "../components/theme-toggle";
+import type { ThinkingStep } from "../components/AgentThinkingIndicator";
 
 export default function ChatPage() {
   const router = useRouter();

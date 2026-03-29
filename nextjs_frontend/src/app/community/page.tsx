@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Sidebar from "@/components/Sidebar";
-import { getCommunityItems, toggleItemUpvote } from "@/lib/api";
-import CommunityItemCard, { CommunityItem } from "@/components/CommunityItemCard";
+import Sidebar from "../../components/Sidebar";
+import { getCommunityItems, toggleItemUpvote } from "../../lib/api";
+import CommunityItemCard, { CommunityItem } from "../../components/CommunityItemCard";
 import { useRouter } from "next/navigation";
 
 export default function CommunityDashboard() {

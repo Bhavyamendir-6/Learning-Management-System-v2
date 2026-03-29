@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
-import { ThemeScript } from "@/lib/theme";
+import { ThemeProvider } from "../components/theme-provider";
+import { ThemeScript } from "../lib/theme";
 
 export const metadata: Metadata = {
   title: "LMS Agent AI Tutor",
